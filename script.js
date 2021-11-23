@@ -1,5 +1,5 @@
 //  add Some Books Data
-let booksData = [
+const booksData = [
   {
     title: 'The Lord Of The Rings',
     author: 'J. R. R. Tolkien',
@@ -14,49 +14,64 @@ let booksData = [
     title: 'Rich Dad Poor Dad',
     author: 'Robert T. Kiyosaki',
     id: 2,
-  }  
+  },
 ];
-
-const initLoad = (booksData) => {
-  const storedData =JSON.parse(localStorage.getItem('storedData'))
-  if(storedData){
-    storedData.forEach((book) => {
-      createBook(book)
-    })
-  }else {
-    localStorage.setItem('storedData', JSON.stringify(booksData))
-    booksData.forEach((book) => {
-      createBook(book)
-    })
-  }
-  
-}
-
 
 function createBook(book) {
   const booksCont = document.getElementById('booksCont');
   const bookDiv = document.createElement('div');
-  bookDiv.className = "book"
-  bookDiv.id = `book-${book.id}`
-  const bookElement = 
-    `
-      <h3 class="bookTitle">${book.title}</h3>
-      <h4 class="bookAuthor">${book.author}</h4>
+  bookDiv.className = 'book';
+  bookDiv.id = `book-${book.id}`;
+  const bookElement = `
+      <h4 class="bookTitle">${book.title}</h4>
+      <p class="bookAuthor">${book.author}</p>
       <button class="removeBtn">Remove</button>
       <hr>
-    `
+    `;
   bookDiv.innerHTML += bookElement;
- 
-  bookDiv.querySelector(".removeBtn").addEventListener('click', (event) => {
-    const book = document.querySelector("#" + event.target.parentElement.id);
+  bookDiv.querySelector('.removeBtn').addEventListener('click', (event) => {
+    const book = document.getElementById(event.target.parentElement.id);
     book.parentElement.removeChild(book);
-    let storedData = JSON.parse(localStorage.getItem("storedData"))
-    // slice
-    localStorage.setItem('storedData', JSON.stringify(storedData))
-
+    let storedData = JSON.parse(localStorage.getItem('storedData'));
+    storedData = storedData.filter((bookobj) => {
+      if (bookobj.id.toString() === book.id.substring(5, book.id.length)) {
+        return false;
+      }
+      return true;
+    });
+    localStorage.setItem('storedData', JSON.stringify(storedData));
   });
-  booksCont.append(bookDiv)
+  booksCont.append(bookDiv);
 }
-initLoad(booksData)
 
+function storeInputData() {
+  const inputData = {
+    title: document.getElementById('title').value,
+    author: document.getElementById('author').value,
+    id: Math.floor(Math.random() * 10000),
+  };
+  const storedData = JSON.parse(localStorage.getItem('storedData'));
+  storedData.push(inputData);
+  localStorage.setItem('storedData', JSON.stringify(storedData));
+  createBook(inputData);
+}
 
+const initLoad = (booksData) => {
+  const storedData = JSON.parse(localStorage.getItem('storedData'));
+  if (storedData) {
+    storedData.forEach((book) => {
+      createBook(book);
+    });
+  } else {
+    localStorage.setItem('storedData', JSON.stringify(booksData));
+    booksData.forEach((book) => {
+      createBook(book);
+    });
+  }
+  const addBtn = document.getElementById('addBtn');
+  addBtn.addEventListener('click', () => {
+    storeInputData();
+  });
+};
+
+initLoad(booksData);
